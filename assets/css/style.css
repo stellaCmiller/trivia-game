@@ -1,0 +1,42 @@
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+#bgImg {
+    position: absolute;
+    width: 100vw;
+    max-height: 100vh;
+    z-index: -99;
+}
+header {
+    text-align: center;
+    font-size: 48pt;
+    font-family: 'Press Start 2P', cursive;
+    color: red;
+    margin-bottom: 20px;
+    padding: 20px 0px 20px 0px;
+    border-bottom: 3px solid gray;
+    width: 100%;
+    background-color: #eeeeee;
+}
+
+section {
+    text-align: center;
+    padding: 10px;
+    width: 70%;
+    margin: auto;
+    background-color: #eeeeee;
+}
+
+#play{
+    font-family: 'Press Start 2P', cursive;
+    background-color: gray;
+    height: 50px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+p {
+    font-size: 24pt;
+}
