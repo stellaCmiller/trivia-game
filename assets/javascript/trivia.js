@@ -1,63 +1,106 @@
-/*Simple timer to be reset after each question created such that the length of time to answer a question can be easily adjusted*/
-function Timer(time){
-    this.maxTime = time;
+/*Simple timer to be reset after each question*/
+var QuizTimer = {
 
-    this.startTime = function(){
-        intervalID = setInterval(this.count(), 1000);
-    }
+    timeLeft: 30,
 
-    this.count = function(){
-        maxTime--;
-        displayUpdate(maxTime);
-    }
+    start: function(){
+        intervalID = setInterval(QuizTimer.count, 1000);
+    },
 
-    this.reset = function(){
-        clearInterval(intervalID);
-        this.time = maxTime;
-    }
+    count: function(){
+        $("#timer").html(`<div><p>${QuizTimer.timeLeft}</p></div>`);
+        QuizTimer.timeLeft--;
+    },
 
-    this.displayUpdate = function(){
-        $("#timer").text(maxTime);
+    reset: function(){
+        clearInterval(QuizTimer.intervalID);
+        timeLeft = 30;
     }
 }
 
 /*The whole fuckin game ayyo */
 var TriviaGame = {
-    questionBank = [
+    questionBank: [
         {
             question: "When Nintendo was first founded, what did they sell?",
-            correct: "Hanafuda cards",
-            answer2: "Videogames",
-            answer3: "Wooden toys",
-            answer4: "Stationery"
+            answers: [
+                {answer: "Hanafuda cards",
+                correct: true},
+                {answer: "Videogames",
+                correct: false},
+                {answer: "Wooden toys",
+                correct: false},
+                {answer: "Stationery",
+                correct: false}
+            ]
         },
         {
             question: "Where is the Nintendo headquarters located?",
-            correct: "Kyoto",
-            answer2: "Tokyo",
-            answer3: "Sapporo",
-            answer4: "Oita"
+            answers: [
+                {answer: "Kyoto",
+                correct: true},
+                {answer: "Tokyo",
+                correct: false},
+                {answer: "Sapporo",
+                correct: false},
+                {answer: "Oita",
+                correct: false}
+            ]
         },
         {
             question: "What year was Nintendo established?",
-            correct: "1889",
-            answer2: "1963",
-            answer3: "1860",
-            answer4: "1975"
+            answers: [
+                {answer: "1889",
+                correct: true},
+                {answer: "1963",
+                correct: false},
+                {answer: "1860",
+                correct: false},
+                {answer: "1975",
+                correct: false}
+            ]
         },
         {
             question: "Which is Nintendo's best selling franchise?",
-            correct: "Super Mario Bros.",
-            answer2: "The Legend of Zelda",
-            answer3: "Super Smash Brothers",
-            answer4: "Metroid"
+            answers: [
+                {answer: "Super Mario Bros.",
+                correct: true},
+                {answer: "The Legend of Zelda",
+                correct: false},
+                {answer: "Super Smash Brothers",
+                correct: false},
+                {answer: "Metroid",
+                correct: false}
+            ]
         }
-    ]
+    ],
+
+    //Implements Durstenfield's Fisher and Yates Shuffle Algorithm
+    randomize: function(arr){
+        var currentIndex = arr.length, randIndex, temp;
+        while (currentIndex !==0){
+            randIndex = Math.floor(Math.random()*currentIndex);
+            currentIndex--;
+            temp = arr[currentIndex];
+            arr[currentIndex] = arr[randIndex];
+            arr[randIndex] = temp;
+        }
+        return arr;
+    },
 }
 
-var quizTimer = new Timer(30);
+var currentQuestion = 1;
+var questionGrabber = TriviaGame.questionBank[(currentQuestion-1)].question;
+var answersGrabber = TriviaGame.randomize(TriviaGame.questionBank[(currentQuestion-1)].answers);
 
+$("#play").click(function(){
 
-
-
-
+    QuizTimer.start();
+    $("#question-container").empty();
+    $("#question-container").append(`
+    <div><p>${currentQuestion}: ${questionGrabber}</p></div>`);
+    answersGrabber.forEach(e => {
+        $("#answer-container").append(`<div>${e.answer}</div>`);
+    })
+    
+})
