@@ -6,20 +6,21 @@ var QuizTimer = {
     start: function(){
         intervalID = setInterval(QuizTimer.count, 1000);
     },
-
     count: function(){
         $("#timer").html(`<div><p>${QuizTimer.timeLeft}</p></div>`);
         QuizTimer.timeLeft--;
     },
-
     reset: function(){
-        clearInterval(QuizTimer.intervalID);
-        timeLeft = 30;
+        clearInterval(intervalID);
+        QuizTimer.timeLeft = 30;
     }
 }
 
-/*The whole fuckin game ayyo */
+/*The Trivia Game!! Most things except displayNextQuestion are methods of the TriviaGame Object */
 var TriviaGame = {
+    numCorrect: 0,
+    numWrong: 0,
+
     questionBank: [
         {
             question: "When Nintendo was first founded, what did they sell?",
@@ -67,15 +68,28 @@ var TriviaGame = {
                 correct: true},
                 {answer: "The Legend of Zelda",
                 correct: false},
-                {answer: "Super Smash Brothers",
+                {answer: "Pokemon",
                 correct: false},
                 {answer: "Metroid",
+                correct: false}
+            ]
+        },
+        {
+            question: "What was the Nintendo Entertainment System known as in Japan?",
+            answers: [
+                {answer: "Famicom",
+                correct: true},
+                {answer: "NES",
+                correct: false},
+                {answer: "Nintendo Family Game System",
+                correct: false},
+                {answer: "Famigame",
                 correct: false}
             ]
         }
     ],
 
-    //Implements Durstenfield's Fisher and Yates Shuffle Algorithm
+    /*Implements Durstenfield's Fisher and Yates Shuffle Algorithm to shuffle the order of the questions and the order of the answer choices*/
     randomize: function(arr){
         var currentIndex = arr.length, randIndex, temp;
         while (currentIndex !==0){
@@ -87,20 +101,85 @@ var TriviaGame = {
         }
         return arr;
     },
+
+    showCorrect: function(){
+        $("#question-container").empty();
+        $("#answer-container").empty();
+        $("#question-container").append(`
+        <div><h2>CORRECT!!!!!</h2></div>
+        <img src='/assets/images/marioStarGet.gif'>`);
+        TriviaGame.numCorrect++;
+        currentQuestion++;
+        setTimeout(function(){displayNextQuestion()}, 6000);
+    },
+
+    showWrong: function(a, timesup=false){
+        $("#question-container").empty();
+        $("#answer-container").empty();
+        if (timesup){
+            $("#question-container").append(`
+            <div><h2>Oof, you took too long! The correct answer was: ${a} </h2></div>
+            <img src='/assets/images/linkRagdollGif.gif'>`);
+        } else {
+            $("#question-container").append(`
+            <div><h2>Sorry, the correct answer was actually: ${a} </h2></div>
+            <img src='/assets/images/linkRagdollGif.gif'>`);
+            TriviaGame.numWrong++;
+            currentQuestion++;
+        }
+        setTimeout(function(){displayNextQuestion()}, 6000);
+    },
+
 }
 
+/*vARiAbleS (Aka I dont wanna write out these complicated-ass object grabs ever again) */
 var currentQuestion = 1;
-var questionGrabber = TriviaGame.questionBank[(currentQuestion-1)].question;
-var answersGrabber = TriviaGame.randomize(TriviaGame.questionBank[(currentQuestion-1)].answers);
+var randQs = TriviaGame.randomize(TriviaGame.questionBank);
+var questionGrabber = function(){
+    return randQs[(currentQuestion-1)].question;
+}
+var answersGrabber = function(){
+    return TriviaGame.randomize(randQs[(currentQuestion-1)].answers);
+}
 
-$("#play").click(function(){
+var getCorrectAnswer = function(){
+    answersGrabber().forEach(e => {
+        if (e.correct == true){
+            console.log(e.answer);
+            return e.answer;
+        }
+    })
+}
 
+
+/*Click Handlers and Game Logic */
+$("#play").click(function() {
+    displayNextQuestion();
+})
+
+$("body").on("click", ".answer", function(){
+    console.log(getCorrectAnswer());
+    answersGrabber().forEach(e => {
+        if (e.answer == $(this).text()){
+            if (e.correct == true){
+                QuizTimer.reset();
+                TriviaGame.showCorrect();
+            } else {
+                QuizTimer.reset();
+                TriviaGame.showWrong(getCorrectAnswer());
+            }
+        }
+    })
+})
+
+/*This function should probably be a method inside the Trivia Game object...hmm */
+function displayNextQuestion(){
     QuizTimer.start();
     $("#question-container").empty();
     $("#question-container").append(`
-    <div><p>${currentQuestion}: ${questionGrabber}</p></div>`);
-    answersGrabber.forEach(e => {
-        $("#answer-container").append(`<div>${e.answer}</div>`);
-    })
+    <div><p>${currentQuestion}: ${questionGrabber()}</p></div>`);
     
-})
+    answersGrabber().forEach(e => {
+        $("#answer-container").append(`<div class="answer" style="display: inline-block">${e.answer}</div><br>`);
+    })
+}
