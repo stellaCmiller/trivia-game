@@ -37,6 +37,14 @@ section {
     margin-top: 20px;
 }
 
-p {
-    font-size: 24pt;
+p, h2 {font-size: 24pt;}
+
+.answer {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 18pt;
+}
+
+.answer:hover {
+    font-weight: bold;
 }
