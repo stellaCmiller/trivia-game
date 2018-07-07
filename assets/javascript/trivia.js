@@ -9,6 +9,10 @@ var QuizTimer = {
     count: function(){
         $("#timer").html(`<div><p>${QuizTimer.timeLeft}</p></div>`);
         QuizTimer.timeLeft--;
+        if (QuizTimer.timeLeft < 0){
+            QuizTimer.reset();
+            TriviaGame.showWrong(TriviaGame.getCorrectAnswer(), true);
+        }
     },
     reset: function(){
         clearInterval(intervalID);
@@ -62,7 +66,7 @@ var TriviaGame = {
             ]
         },
         {
-            question: "What year was Nintendo established?",
+            question: "What year was Nintendo founded?",
             answers: [
                 {answer: "1889",
                 correct: true},
@@ -99,7 +103,73 @@ var TriviaGame = {
                 {answer: "Famigame",
                 correct: false}
             ]
+        },
+        {
+            question: "Before the Nintendo Gamecube was released, what was it's code name?",
+            answers: [
+                {answer: "Dolphin",
+                correct: true},
+                {answer: "Revolution",
+                correct: false},
+                {answer: "Project Infrared",
+                correct: false},
+                {answer: "Project Reality",
+                correct: false}
+            ]
+        },
+        {
+            question: "Until 2016, of which American baseball team was Nintendo the primary shareholder?",
+            answers: [
+                {answer: "Seattle Mariners",
+                correct: true},
+                {answer: "Texas Rangers",
+                correct: false},
+                {answer: "Colorado Rockies",
+                correct: false},
+                {answer: "San Diego Padres",
+                correct: false}
+            ]
+        },
+        {
+            question: "This Nintendo Game Boy game was the first to be played in space:",
+            answers: [
+                {answer: "Tetris",
+                correct: true},
+                {answer: "The Legend of Zelda",
+                correct: false},
+                {answer: "Dr. Mario",
+                correct: false},
+                {answer: "Pac-Man",
+                correct: false}
+            ]
+        },
+        {
+            question: "Which of the following games did Shigeru Miyamoto NOT design?",
+            answers: [
+                {answer: "Kid Icarus",
+                correct: true},
+                {answer: "Donkey Kong",
+                correct: false},
+                {answer: "The Legend of Zelda",
+                correct: false},
+                {answer: "Excitebike",
+                correct: false}
+            ]
+        },
+        {
+            question: "Which game was the first to use the N64 RAM Expansion Pack?",
+            answers: [
+                {answer: "Donkey Kong 64",
+                correct: true},
+                {answer: "Pokemon Stadium 2",
+                correct: false},
+                {answer: "The Legend of Zelda: Majora's Mask",
+                correct: false},
+                {answer: "Perfect Dark",
+                correct: false}
+            ]
         }
+        
     ],
 
     /*Implements Durstenfield's Fisher and Yates Shuffle Algorithm to shuffle the order of the questions and the order of the answer choices*/
@@ -137,9 +207,9 @@ var TriviaGame = {
             $("#question-container").append(`
             <div><h2>Sorry, the correct answer was actually: ${a} </h2></div>
             <img src='/assets/images/linkRagdollGif.gif'>`);
-            TriviaGame.numWrong++;
-            TriviaGame.currentQuestion++;
         }
+        TriviaGame.numWrong++;
+        TriviaGame.currentQuestion++;
         setTimeout(function(){TriviaGame.displayNextQuestion()}, 6000);
     },
 
@@ -180,9 +250,13 @@ var TriviaGame = {
 
 }
 
+/*-------------------------------------------------------------------------------- */
 /*Click Handlers and Game Logic */
+
 $("body").on("click", "#play", function() {
     TriviaGame.currentQuestion = 1;
+    TriviaGame.numCorrect = 0;
+    TriviaGame.numWrong = 0;
     TriviaGame.shuffleQs();
     TriviaGame.shuffleAs();
     TriviaGame.displayNextQuestion();
