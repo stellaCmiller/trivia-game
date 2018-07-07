@@ -105,7 +105,7 @@ var TriviaGame = {
             ]
         },
         {
-            question: "Before the Nintendo Gamecube was released, what was it's code name?",
+            question: "Before the Nintendo Gamecube was released, what was its code name?",
             answers: [
                 {answer: "Dolphin",
                 correct: true},
@@ -131,7 +131,7 @@ var TriviaGame = {
             ]
         },
         {
-            question: "This Nintendo Game Boy game was the first to be played in space:",
+            question: "This Game Boy game was the first to be played in space:",
             answers: [
                 {answer: "Tetris",
                 correct: true},
@@ -190,7 +190,7 @@ var TriviaGame = {
         $("#answer-container").empty();
         $("#question-container").append(`
         <div><h2>CORRECT!!!!!</h2></div>
-        <img src='/assets/images/marioStarGet.gif'>`);
+        <img src='./images/marioStarGet.gif'>`);
         TriviaGame.numCorrect++;
         TriviaGame.currentQuestion++;
         setTimeout(function(){TriviaGame.displayNextQuestion()}, 6000);
@@ -202,11 +202,11 @@ var TriviaGame = {
         if (timesup){
             $("#question-container").append(`
             <div><h2>Oof, you took too long! The correct answer was: ${a} </h2></div>
-            <img src='/assets/images/linkRagdollGif.gif'>`);
+            <img src='./images/linkRagdollGif.gif'>`);
         } else {
             $("#question-container").append(`
             <div><h2>Sorry, the correct answer was actually: ${a} </h2></div>
-            <img src='/assets/images/linkRagdollGif.gif'>`);
+            <img src='./images/linkRagdollGif.gif'>`);
         }
         TriviaGame.numWrong++;
         TriviaGame.currentQuestion++;
