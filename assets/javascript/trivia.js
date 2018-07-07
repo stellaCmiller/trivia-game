@@ -1,7 +1,7 @@
 /*Simple timer to be reset after each question*/
 var QuizTimer = {
 
-    timeLeft: 30,
+    timeLeft: 15,
 
     start: function(){
         intervalID = setInterval(QuizTimer.count, 1000);
@@ -12,14 +12,27 @@ var QuizTimer = {
     },
     reset: function(){
         clearInterval(intervalID);
-        QuizTimer.timeLeft = 30;
+        QuizTimer.timeLeft = 15;
     }
 }
 
-/*The Trivia Game!! Most things except displayNextQuestion are methods of the TriviaGame Object */
+/*The Trivia Game!! Literally everything is inside this object, yeet */
 var TriviaGame = {
     numCorrect: 0,
     numWrong: 0,
+    currentQuestion: 1,
+
+    //Shuffles the Questions in the question bank
+    shuffleQs: function(){
+        this.questionBank = TriviaGame.randomize(TriviaGame.questionBank);
+    },
+
+    //Shuffles the answer choices for each question
+    shuffleAs: function(){
+        for (let i=0; i<TriviaGame.questionBank.length; i++){
+            this.questionBank[i].answers = TriviaGame.randomize(TriviaGame.questionBank[i].answers);        
+        }
+    },
 
     questionBank: [
         {
@@ -109,8 +122,8 @@ var TriviaGame = {
         <div><h2>CORRECT!!!!!</h2></div>
         <img src='/assets/images/marioStarGet.gif'>`);
         TriviaGame.numCorrect++;
-        currentQuestion++;
-        setTimeout(function(){displayNextQuestion()}, 6000);
+        TriviaGame.currentQuestion++;
+        setTimeout(function(){TriviaGame.displayNextQuestion()}, 6000);
     },
 
     showWrong: function(a, timesup=false){
@@ -125,61 +138,67 @@ var TriviaGame = {
             <div><h2>Sorry, the correct answer was actually: ${a} </h2></div>
             <img src='/assets/images/linkRagdollGif.gif'>`);
             TriviaGame.numWrong++;
-            currentQuestion++;
+            TriviaGame.currentQuestion++;
         }
-        setTimeout(function(){displayNextQuestion()}, 6000);
+        setTimeout(function(){TriviaGame.displayNextQuestion()}, 6000);
     },
 
-}
-
-/*vARiAbleS (Aka I dont wanna write out these complicated-ass object grabs ever again) */
-var currentQuestion = 1;
-var randQs = TriviaGame.randomize(TriviaGame.questionBank);
-var questionGrabber = function(){
-    return randQs[(currentQuestion-1)].question;
-}
-var answersGrabber = function(){
-    return TriviaGame.randomize(randQs[(currentQuestion-1)].answers);
-}
-
-var getCorrectAnswer = function(){
-    answersGrabber().forEach(e => {
-        if (e.correct == true){
-            console.log(e.answer);
-            return e.answer;
+    displayNextQuestion: function(){
+        if (this.currentQuestion <= this.questionBank.length){
+            QuizTimer.start();
+            $("#question-container").empty();
+            $("#question-container").append(`
+            <div><p>${this.currentQuestion}: ${this.questionBank[this.currentQuestion-1].question}</p></div>`);
+            this.questionBank[this.currentQuestion-1].answers.forEach(e => {
+                $("#answer-container").append(`<div class="answer" style="display: inline-block">${e.answer}</div><br>`);
+            })
+        } else {
+            TriviaGame.displayEndStats();
         }
-    })
-}
+    },
 
+    getCorrectAnswer: function(){
+        var correct;
+        TriviaGame.questionBank[TriviaGame.currentQuestion-1].answers.forEach(e => {
+            if (e.correct == true){
+                correct = e.answer;
+            }
+        })
+        return correct;
+    },
+
+    displayEndStats: function(){
+        $("#question-container").empty();
+        $("#question-container").append(`
+        <div><h2>Thanks for Playing! Your score: </h2>
+        <p>Correct Answers: ${TriviaGame.numCorrect}</p>
+        <p>Wrong Answers: ${TriviaGame.numWrong}</p>
+        <p>Try again? </p>
+        <button id="play">PLAY AGAIN</button>
+        `)
+    }
+
+}
 
 /*Click Handlers and Game Logic */
-$("#play").click(function() {
-    displayNextQuestion();
+$("body").on("click", "#play", function() {
+    TriviaGame.currentQuestion = 1;
+    TriviaGame.shuffleQs();
+    TriviaGame.shuffleAs();
+    TriviaGame.displayNextQuestion();
 })
 
 $("body").on("click", ".answer", function(){
-    console.log(getCorrectAnswer());
-    answersGrabber().forEach(e => {
+    TriviaGame.questionBank[TriviaGame.currentQuestion-1].answers.forEach(e => {
         if (e.answer == $(this).text()){
             if (e.correct == true){
                 QuizTimer.reset();
                 TriviaGame.showCorrect();
             } else {
                 QuizTimer.reset();
-                TriviaGame.showWrong(getCorrectAnswer());
+                TriviaGame.showWrong(TriviaGame.getCorrectAnswer());
             }
         }
     })
 })
 
-/*This function should probably be a method inside the Trivia Game object...hmm */
-function displayNextQuestion(){
-    QuizTimer.start();
-    $("#question-container").empty();
-    $("#question-container").append(`
-    <div><p>${currentQuestion}: ${questionGrabber()}</p></div>`);
-    
-    answersGrabber().forEach(e => {
-        $("#answer-container").append(`<div class="answer" style="display: inline-block">${e.answer}</div><br>`);
-    })
-}
